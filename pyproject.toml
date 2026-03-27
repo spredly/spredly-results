@@ -1,0 +1,23 @@
+[project]
+name = "spredly-results"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "mirzaev.arsen",email = "arsen.00z11@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiohttp (>=3.13.3,<4.0.0)",
+    "rapidfuzz (>=3.14.3,<4.0.0)",
+    "unidecode (>=1.4.0,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+black = "^26.3.1"
+
