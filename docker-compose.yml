@@ -1,0 +1,19 @@
+services:
+  results_microservice:
+    build: .
+    container_name: results_microservice
+    restart: unless-stopped
+    command: python -m src.events.receiver
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+      RABBITMQ_LOGS: "-"
+      RABBITMQ_LOG_LEVEL: warning
+    env_file:
+      - .env
+    networks:
+      - web
+
+networks:
+  web:
+    external: true

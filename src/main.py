@@ -1,6 +1,8 @@
 from src.fuzzing import find_event
 from src.parser import parse
+import functools
 import asyncio
+import time
 
 async def main():
     candidate_events = await parse("2026-03-27")
