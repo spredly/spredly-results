@@ -120,8 +120,8 @@ def _build(sports, competitions, events, event_miscs):
             "status_id": event.get("status"),
             "status_name": event_status_map.get(event.get("status"), "unknown"),
 
-            "team1": event.get("team1"),
-            "team2": event.get("team2"),
+            "home_team_name": event.get("team1"),
+            "away_team_name": event.get("team2"),
 
             "score1": misc.get("score1"),
             "score2": misc.get("score2"),

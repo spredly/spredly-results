@@ -31,15 +31,15 @@ def _calc_score(a: str, b: str) -> float:
     )
 
 
-def _compare_match(src_team1: str, src_team2: str, cand_team1: str, cand_team2: str) -> float:
+def _compare_match(src_home_team_name: str, src_away_team_name: str, cand_home_team_name: str, cand_away_team_name: str) -> float:
     direct = (
-        _calc_score(src_team1, cand_team1) +
-        _calc_score(src_team2, cand_team2)
+        _calc_score(src_home_team_name, cand_home_team_name) +
+        _calc_score(src_away_team_name, cand_away_team_name)
     ) / 2
 
     swapped = (
-        _calc_score(src_team1, cand_team2) +
-        _calc_score(src_team2, cand_team1)
+        _calc_score(src_home_team_name, cand_away_team_name) +
+        _calc_score(src_away_team_name, cand_home_team_name)
     ) / 2
 
     return round(max(direct, swapped), 2)
@@ -50,10 +50,10 @@ def find_event(incoming_event: dict, candidate_events: list[dict]) -> dict | Non
 
     for candidate in candidate_events:
         score = _compare_match(
-            incoming_event.get("team1", ""),
-            incoming_event.get("team2", ""),
-            candidate.get("team1", ""),
-            candidate.get("team2", ""),
+            incoming_event.get("home_team_name", ""),
+            incoming_event.get("away_team_name", ""),
+            candidate.get("home_team_name", ""),
+            candidate.get("away_team_name", ""),
         )
 
         if best_match is None or score > best_match["score"]:

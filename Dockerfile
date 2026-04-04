@@ -1,10 +1,10 @@
 FROM python:3.12-slim
 
-WORKDIR /app
+WORKDIR /code
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/code
 
 RUN pip install --no-cache-dir poetry
 

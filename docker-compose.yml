@@ -1,16 +1,24 @@
 services:
-  results_microservice:
-    build: .
-    container_name: results_microservice
-    restart: unless-stopped
+
+  receiver:
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: python -m src.events.receiver
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
       RABBITMQ_LOGS: "-"
       RABBITMQ_LOG_LEVEL: warning
+      PYTHONUNBUFFERED: 1
+      LOG_LEVEL: INFO
     env_file:
       - .env
+    volumes:
+      - ./src:/code/src
+      - .env:/code/.env
+      - ./storage:/code/storage
+      - ./migrations:/code/migrations
     networks:
       - web
 
