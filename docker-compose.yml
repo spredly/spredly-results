@@ -12,6 +12,7 @@ services:
       RABBITMQ_LOG_LEVEL: warning
       PYTHONUNBUFFERED: 1
       LOG_LEVEL: INFO
+    restart: unless-stopped
     env_file:
       - .env
     volumes:

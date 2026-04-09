@@ -47,6 +47,7 @@ def _compare_match(src_home_team_name: str, src_away_team_name: str, cand_home_t
 
 def find_event(incoming_event: dict, candidate_events: list[dict]) -> dict | None:
     best_match = None
+    best_score = -1.0
 
     for candidate in candidate_events:
         score = _compare_match(
@@ -56,11 +57,8 @@ def find_event(incoming_event: dict, candidate_events: list[dict]) -> dict | Non
             candidate.get("away_team_name", ""),
         )
 
-        if best_match is None or score > best_match["score"]:
-            best_match = {
-                "incoming_event": incoming_event,
-                "candidate_event": candidate,
-                "score": score,
-            }
+        if best_match is None or score > best_score:
+            best_match = candidate.copy()
+            best_score = score
 
     return best_match

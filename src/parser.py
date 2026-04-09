@@ -152,6 +152,3 @@ async def parse(date: str):
 
     return merged_events
 
-
-if __name__ == "__main__":
-    asyncio.run(run())

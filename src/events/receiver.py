@@ -4,42 +4,35 @@ import asyncio
 
 import json
 from aio_pika.abc import AbstractIncomingMessage
-from pydantic import ValidationError
+from aiormq import ChannelInvalidStateError
 from src.events.connection import rabbitmq
 from src.events.queues import Queues
 from src.run_search import run
+from src.logger import get_module_logger
+
+logger = get_module_logger(__name__)
+
 
 async def _process_message(message: AbstractIncomingMessage) -> None:
-    try:
+    async with message.process(requeue=False, ignore_processed=True):
         event = json.loads(message.body)
-        event_type = event['event_type']
+        event_type = event["event_type"]
 
-        if (event_type == 'events_result'):
-            date = event.get('date', None)
-            if not date:
-                raise ValidationError('[date] is required')
+        if event_type != "events_result_request":
+            return
 
-            events = event.get('events', [])
-            
-            if not len(events): 
-                raise ValidationError('[events] is required')
+        date = event.get("date")
+        if not date:
+            raise ValueError("[date] is required")
 
-            await message.ack()
-            await run(date=date, incoming_events=events)
+        events = event.get("events", [])
+        if not events:
+            raise ValueError("[events] is required")
 
-
-    except ValidationError as e:
-        await message.reject(requeue=False)
-        print(e)
-
-    except Exception as e:
-        await message.reject(requeue=False)
-        print(e)
+        await run(date=date, incoming_events=events)
 
 async def receive_events() -> None:
-    attempts = 5
-
-    for attempt in range(attempts):
+    while True:
         try:
             await rabbitmq.connect()
 
@@ -51,12 +44,27 @@ async def receive_events() -> None:
 
             async with queue.iterator() as queue_iter:
                 async for message in queue_iter:
-                    await _process_message(message)
+                    try:
+                        await _process_message(message)
+                    except ValueError as e:
+                        logger.error("[receiver] invalid message schema: %s", e)
+                    except ChannelInvalidStateError as e:
+                        logger.warning("[receiver] channel closed while processing: %r", e)
+                    except Exception as e:
+                        logger.exception("[receiver] failed to process message: %r", e)
+
         except Exception as e:
-            print(e)
+            logger.exception(
+                "[receiver] error while receiving messages: %r",
+                e,
+            )
             await asyncio.sleep(5)
+
         finally:
-            await rabbitmq.close()
+            try:
+                await rabbitmq.close()
+            except Exception as e:
+                logger.exception("[receiver] error while closing connection: %r", e)
 
 async def main() -> None:
     await receive_events()
